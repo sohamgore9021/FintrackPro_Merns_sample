@@ -7,6 +7,7 @@ import { MyStore } from "../../../app/context/MyContext";
 
 export const useAuth = () => {
   const [showPassword, setShowPassword] = useState(false);
+  const [serverError, setServerError] = useState("");
   const navigate = useNavigate();
   const api = useApi();
 
@@ -18,18 +19,27 @@ export const useAuth = () => {
     formState: { errors },
   } = useForm();
 
-  const onRegisterSubmit = async (data) => {
-    try {
-      await api.post("/auth/register", data);
+ const onRegisterSubmit = async (data) => {
+  try {
+    setServerError("");
 
-      setLoading(false);
+    await api.post("/auth/register", data);
 
-      navigate("/");
-    } catch (error) {
-      setLoading(false);
-      console.log(error);
-    }
-  };
+    setLoading(false);
+    navigate("/");
+  } catch (error) {
+    setLoading(false);
+
+    const message =
+      error.response?.data?.errors?.find(
+        (err) => err.path === "password"
+      )?.msg ||
+      error.response?.data?.message ||
+      "Something went wrong";
+
+    setServerError(message);
+  }
+};
 
   const onLoginSubmit = async (data) => {
     try {
@@ -60,14 +70,15 @@ export const useAuth = () => {
   };
 
   return {
-    register,
-    handleSubmit,
-    errors,
-    showPassword,
-    setShowPassword,
-    onRegisterSubmit,
-    navigate,
-    onLoginSubmit,
-    logout,
-  };
+  register,
+  handleSubmit,
+  errors,
+  serverError,
+  showPassword,
+  setShowPassword,
+  onRegisterSubmit,
+  navigate,
+  onLoginSubmit,
+  logout,
+};
 };

@@ -6,14 +6,15 @@ import { useAuth } from "../../hooks/useAuthHook";
 
 const Register = () => {
   const {
-    register,
-    handleSubmit,
-    errors,
-    showPassword,
-    setShowPassword,
-    navigate,
-    onRegisterSubmit,
-  } = useAuth();
+  register,
+  handleSubmit,
+  errors,
+  serverError,
+  showPassword,
+  setShowPassword,
+  onRegisterSubmit,
+  navigate,
+} = useAuth();
 
   return (
     <div className="min-h-screen bg-gray-50 text-gray-900 flex items-center justify-center px-4 py-8">
@@ -113,11 +114,16 @@ const Register = () => {
               <input
                 type={showPassword ? "text" : "password"}
                 placeholder="Create a password"
-                {...register("password", {
+                  {...register("password", {
                   required: "Password is required",
                   minLength: {
-                    value: 6,
-                    message: "Password must be at least 6 characters",
+                    value: 8,
+                    message: "Password must be at least 8 characters",
+                  },
+                  pattern: {
+                    value: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&]).{8,}$/,
+                    message:
+                      "Password must contain uppercase, lowercase, number, and special character",
                   },
                 })}
                 className={`w-full h-12 rounded-xl bg-white border ${
@@ -142,6 +148,7 @@ const Register = () => {
           </div>
 
           {/* Register Button */}
+          {serverError && <p>{serverError}</p>}
           <button
             type="submit"
             className="w-full h-12 rounded-xl bg-gray-900 hover:bg-gray-800 text-white flex items-center justify-center gap-2 font-semibold transition active:scale-[0.99]"
